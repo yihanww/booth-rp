@@ -1,0 +1,107 @@
+---
+title: "data-analysis"
+output: 
+  pdf_document:
+    toc: true
+date: "2024-01-29"
+---
+
+## Import Packages
+```{r setup, message=FALSE, warning=FALSE}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+
+# Task 1 - Answer a Research Question
+```{r read-in data, message=FALSE, warning=FALSE}
+# First, I load the given dataset in my RStudio
+key <- read_excel("data.xlsx", sheet = "Key - variable meaning") 
+fulldata <- read_excel("data.xlsx", sheet = "Data")
+
+# Next, I do some preliminary data cleaning to drop unreliable participants
+df <- fulldata %>% 
+  filter(Finished == TRUE) %>% 
+  filter(passedattn ==  "yes") %>% 
+  # there is one comment saying "don't use this data, with a age of 149, so I filter this out using age as a criterion
+  filter(age < 100)s
+```
+
+```{r , message=FALSE, warning=FALSE}
+
+```
+
+## Whether people care about getting a return apology after being the first to apologize
+
+# Task 2 - Conduct additional analyses
+## A. Produce a bar graph
+```{r plot feelings variable, message=FALSE, warning=FALSE}
+# Calculate means and standard errors
+feelings <- df %>%
+  select("feelings_youalone", "feelings_bothyoufirst", "feelings_themalone",
+         "feelings_boththemfirst","feelings_neither","feelings_youaloneforgiven")
+feelings_means <- colMeans(feelings)
+feelings_se <- sapply(feelings, function(x) sd(x) / sqrt(length(x)))
+plot_feelings <- data.frame(scenario = names(feelings_means),
+                            mean = feelings_means,
+                            se = feelings_se) 
+
+# Create the bar graph with ggplot2
+ggplot(plot_feelings, aes(x = reorder(scenario, -mean), 
+                          y = mean, fill = scenario)) +
+  geom_bar(stat = "identity", 
+           position = "dodge") +
+  geom_errorbar(aes(ymin = mean - se, 
+                    ymax = mean + se),
+                width = .2,                   
+                position = position_dodge(.9)) +
+  labs(x = "Scenarios", 
+       y = "Average of Feelings", 
+       title = "Average of Feelings for Each Scenario",    
+       fill = "Scenario Type") +
+  scale_fill_manual(values=c("#ff6db6","#F46D43","#490092",
+                             "#006ddb","#24ff24","#ffff6d"))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    panel.background = element_rect(fill = "white"),   
+    panel.grid.major.y = element_line(colour = "lightgray", linetype = 1, size = .5),
+    panel.grid.major.x = element_line(colour = "lightgray", linetype = 1, size = .5),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank())
+```
+## B. Conduct ANOVA
+```{r ANOVA, message=FALSE, warning=FALSE}
+# Perform one-way ANOVA
+anova_results <- aov(feelings_youalone ~ feelings_bothyoufirst + feelings_themalone + feelings_boththemfirst + feelings_neither + feelings_youaloneforgiven, data = df)
+summary(anova_results)
+```
+
+### Pairwise t-tests
+```{r paired t-tests, message=FALSE, warning=FALSE}
+# Exclude the first column 'feelings_youalone' for the pairwise comparisons
+scenarios <- names(feelings)[-1] 
+
+# Initialize an empty list to store test results and a vector for p-values
+pairwise_tests <- list()
+p_values <- numeric(length(scenarios))
+
+# Perform pairwise t-tests for all pairs where 'feelings_youalone' is one group
+for (scenario in scenarios) {
+  test_result <- t.test(feelings[[scenario]], 
+                        feelings[['feelings_youalone']], paired = TRUE)
+  pairwise_tests[[scenario]] <- test_result
+  scenario_index <- which(names(feelings) == scenario)
+  # Adjusting index as 'feelings_youalone' is at index 1
+  p_values[scenario_index - 1] <- test_result$p.value 
+}
+
+# Adjust for multiple testing using Bonferroni correction for multiple comparison 
+p_adjusted <- p.adjust(p_values, method = "bonferroni")
+
+# Combine results into a data frame
+results <- data.frame(
+  Scenario = scenarios,
+  P_Value = p_values,
+  P_Adjusted = p_adjusted,
+  options(scipen=9999))
+```
