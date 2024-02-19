@@ -5,7 +5,7 @@ output:
     toc: true
 header-includes:
   - \usepackage{booktabs}
-date: "2024-02"
+date: "2024-02-18"
 ---
 
 ## Import Packages
@@ -32,11 +32,9 @@ df <- fulldata %>%
   filter(age < 100)
 ```
 
-```{r , message=FALSE, warning=FALSE}
-
-```
 ## 1. Whether people care about getting a return apology after being the first to apologize
 ```{r receiving apology, message=FALSE, warning=FALSE}
+# Create a subset dataframe for plotting
 compare <- df %>%
   select(feelings_youalone, feelings_bothyoufirst) %>%
   rename('Get no return apology' = feelings_youalone, 
@@ -45,6 +43,7 @@ compare <- df %>%
                names_to = "scenario", 
                values_to = "score")
 
+# Plot the distribution
 ggplot(compare, aes(x = scenario, 
                     y = score, 
                     fill = scenario)) +
@@ -63,7 +62,7 @@ From the box plot, I could tell that the general distribution of feelings when p
 
 ## 2. Whether this varies as function of individual differences in “initiator type”
 ```{r initiator type, message=FALSE, warning=FALSE}
-
+# Create a subset dataframe for plotting
 compare_type <- df %>%
   select(feelings_youalone, feelings_bothyoufirst, initiator_type) %>%
   rename('Get no return apology' = feelings_youalone, 
@@ -72,7 +71,7 @@ compare_type <- df %>%
                names_to = "scenario", 
                values_to = "score")
 
-# Now create the plot with facets
+# Plot the distribution with facets
 ggplot(compare_type, aes(x = scenario, 
                          y = score, 
                          fill = scenario)) +
@@ -91,14 +90,13 @@ ggplot(compare_type, aes(x = scenario,
         panel.background = element_rect(fill = "white"))+
   scale_fill_brewer(palette = "Set1") +
   facet_wrap(~initiator_type)
-
 ```
 
 If we investigate whether people care about getting a return apology by initiator types, we could get the same conclusion. For each initiator type, the feelings score distributions for the condition of getting a return apology is much higher than the condition of getting no return apology. 
 
 ## 3. whether a return apology is simply viewed as a form of forgiveness
 ```{r forgiveness, message=FALSE, warning=FALSE}
-
+# Create a subset dataframe for plotting
 compare_forgive <- df %>%
   select(feelings_bothyoufirst, feelings_youaloneforgiven) %>%
   rename('Get return apology' = feelings_bothyoufirst, 
@@ -107,6 +105,7 @@ compare_forgive <- df %>%
                names_to = "scenario", 
                values_to = "score")
 
+# Plot the distribution
 ggplot(compare_forgive, aes(x = scenario, 
                             y = score, 
                             fill = scenario)) +
@@ -117,20 +116,19 @@ ggplot(compare_forgive, aes(x = scenario,
        fill = "Scenario Type") +
   theme_minimal() +
   scale_fill_brewer(palette = "Set1")
-
 ```
 In this case, I create a boxplot comparing the scenario of whether people get a return apology (feelings_bothyoufirst) or get a forgiveness (feelings_youaloneforgiven) to see if a return apology is simply viewed as a form of forgiveness. Since the distribution for the situation of get a return apology is much higher than the situation of get a forgiveness, we could tell that receiving a return apology is not the same as receiving a forgiveness. Receiving an actual return apology has a much higher score of feelings (median = 10), compared to get a forgiveness (median = -20). Thus, people do not just simply view a return apology as a form of forgiveness. 
 
-## Some possible psychological explanations 
-- In all three cases above, we could tell that feelings score of people getting a return apology is always higher whatever the initiator type or people get a forgiveness. This could due to several reasons:\
-1. Mismatched expectations: People have inherent expectations of reciprocity and equity in social interactions. When we apologize, we might also expect the receiver to apologize as well to form a mutual apology. When they fail to do so, we might feel disappointed or injustice.\
-2. Social norms: Similar to unmet expectations, in the case of non-reciprocated apology, we could feel being rejected by social norms or misunderstood, which could leads to social awkwardness or social isolated.\
+## Discussion - some possible psychological explanations 
+- In all three cases above, we could tell that feelings score of people getting a return apology is always higher whatever the initiator type or people get a forgiveness. This could due to several reasons:
+1. Mismatched expectations: People have inherent expectations of reciprocity and equity in social interactions. When we apologize, we might also expect the receiver to apologize as well to form a mutual apology. When they fail to do so, we might feel disappointed or injustice.
+2. Social norms: Similar to unmet expectations, in the case of non-reciprocated apology, we could feel being rejected by social norms or misunderstood, which could leads to social awkwardness or social isolated.
 3. Downwards self-esteem: Apologizing can make people feel vulnerable because we expose our feelings and lower our self-esteem. When we get a return apology, our self-esteem is protected, whereas hurt if we cannot get a return apology.\
-- There could also be some potential factors and contexts influencing the results:\
-1. Social status: I imagine if we could get return apologize to a person at a higher social positions than us, such as leaders or other respectful persons, whom we normally would not expect return apology from them, we might have a higher feelings score. First, since we do not usually expect their mutual apology, getting one would result in an experience of being respected and justice. Also, we could feel our self-esteem is being acknowledged when we get apology from people come from higher social hierarchic. 
+- There could also be some potential factors and contexts influencing the results:
+1. Social status: I imagine if we could get return apologize to a person at a higher social positions than us, such as leaders or other respectful persons, whom we normally would not expect return apology from them, we might have a higher feelings score. First, since we do not usually expect their mutual apology, getting one would result in an experience of being respected and justice. Also, we could feel our self-esteem is being acknowledged when we get apology from people come from higher social hierarchic.
 2. Cultural norms: I think culture also plays as another factor could result in different feelings score here. People origin from different cultures might have different ways to express their apology or receive apology. The cultural discrepancy could leads to misunderstanding within senders and receivers. Even if senders accept a return apology, if the format is not applicable, their feeling score might be lower than normal.\ 
-- Other Observations:
-1.
+- Other Observations:\
+From my personal view, I feel the variable "blame" is a bit vague for participants to understand and also hard to interpret from a statistical perspective, as this variable take all positive numeric to represent the blameness. If I were to design this question, I might also apply a slider bar from -30 to 30 and ask the participants to illustrate their feelings. For example, on a scale of -30 to 30, if they feel they are the person to blame, move the slider bar towards more negative value. If they feel the other person is the one to blame, move the slider bar towards more positive value.\ 
 
 # Task 2 - Conduct additional analyses
 ## A. Bar graph: average feelings across 6 scenarios
@@ -177,6 +175,8 @@ anova_data <- feelings %>% pivot_longer(cols = everything(),
                                         values_to = "score")
 anova_results <- aov(score ~ scenario, data = anova_data)
 summary_anova <- summary(anova_results)
+
+# Create a table to store statistics
 anova_table <- data.frame(
   Term = rownames(summary_anova[[1]]),
   Df = summary_anova[[1]]$Df,
@@ -213,26 +213,27 @@ for (scenario in scenarios) {
 p_adjusted <- p.adjust(p_values, method = "bonferroni")
 
 # Combine results into a data frame
-results <- data.frame(
+pairt_results <- data.frame(
   Scenario = scenarios,
   P_Value = p_values,
-  P_Adjusted = p_adjusted,
-  options(scipen=9999))
-print(results)
+  P_Adjusted = p_adjusted)
+kable(pairt_results, format = "latex", booktabs = TRUE, caption = "Pairwise t-test Table")
+
 ```
-Given the ANOVA has a significant result, we next proceed to pairwise t-tests to compare variable "feelings_youalone" to each of the other 5 scenarios. As results shows: 
-- "feelings_youalone" is significantly different from "feelings_bothyoufirst" (p < 0.01), "feelings_themalone" (p < 0.01), and "feelings_boththemfirst" (p < 0.01) after adjusting for multiple comparisons.
-- Therefore, the significance suggests that feelings experienced when participants get no  apology is significantly different compared to the feelings experienced when they receive an apology, whether or not they being the first to apologize.
+Given the ANOVA has a significant result, we next proceed to pairwise t-tests to compare variable "feelings_youalone" to each of the other 5 scenarios. As results shows in Table 2:
+"feelings_youalone" is significantly different from "feelings_bothyoufirst" (p < 0.01), "feelings_themalone" (p < 0.01), and "feelings_boththemfirst" (p < 0.01) after adjusting for multiple comparisons.\
+Therefore, the significance suggests that feelings experienced when participants get no  apology is significantly different compared to the feelings experienced when they receive an apology, whether or not they being the first to apologize.\
 
 ## C. The proportion of people choosing different options
 ```{r binary, message=FALSE, warning=FALSE}
+# Create a subset dataframe for plotting
 outcome_table <- df %>%
   mutate(outcome_binary1 = case_when(
     outcome_binary1 == "I apologize first, then ${e://Field/initials} apologizes." ~ 
       "I apologize first, then others apologize.",
     outcome_binary1 == "Neither I nor ${e://Field/initials} apologizes." ~ 
       "Neither I nor others apologize.",
-    TRUE ~ as.character(outcome_binary1))) %>%
+    TRUE ~ as.character(outcome_binary1))) %>% # change name for prettier table
   count(outcome_binary1) %>%
   mutate(proportion = n / sum(n))
 
@@ -256,8 +257,18 @@ ggplot(data = as.data.frame(outcome_table), aes(x = outcome_binary1,
     panel.grid.major.x = element_line(color = "lightgray", linetype = 1, size = .5),
     panel.grid.minor.x = element_blank(),
     panel.grid.minor.y = element_blank())
-
-
 ```
-	
-Again, think about your argument/conflict, and imagine no one has yet apologized. 
+```{r chisq, message=FALSE, warning=FALSE}
+# Conduct Chi-Square test
+outcome_chisq <- table(df$outcome_binary1)
+expected <- rep(sum(outcome_chisq) / length(outcome_chisq), length(outcome_chisq))
+chisq_test_results <- chisq.test(outcome_chisq, p = expected / sum(expected))
+
+# Create a table to store the statistics
+chisq_table <- data.frame(
+  p_value = chisq_test_results$p.value, 
+  observed = chisq_test_results$observed,
+  expected = chisq_test_results$expected)
+kable(chisq_table, format = "latex", booktabs = TRUE, caption = "Chi-Sq Table")
+```
+The Chi-Square test to determine the proportion has a significance value p<0.05, which means that the proportion differences across the answers are significantly different from one other. 
